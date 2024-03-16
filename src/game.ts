@@ -2,7 +2,6 @@ import { Trick } from './trick.js';
 import { GameState, Play, TrickResult, config, levels } from './shared.js';
 import { Deck } from './deck.js';
 import { Player } from './player.js';
-import { Card } from './card.js';
 import { Goal } from './goal.js';
 
 export class Game {
@@ -25,7 +24,8 @@ export class Game {
   deck: Deck = null;
   commander: Player = null;
   currentPlayerIdToPickGoals: number;
-  unassignedGoals: Goal[] = [];
+  goals: Goal[] = [];
+  goalMapByCard: {[key: string]: Goal} = {};
   level = 0;
   state: typeof this.states[keyof typeof this.states];
 
@@ -87,7 +87,7 @@ export class Game {
     return {
       players: this.players,
       currentTrick: this.currentTrick,
-      unassignedGoals: this.unassignedGoals,
+      goals: this.goals,
       state: this.state,
       message: this.message,
       trickResults: this.trickResults,
@@ -102,25 +102,28 @@ export class Game {
       levelConfig.maxTrumpValue
     );
     for (let i = 0; i < levelConfig.cards; i++) {
-      this.unassignedGoals.push(new Goal(goalsDeck.cards.pop()));
+      const goal = new Goal(goalsDeck.cards.pop());
+      this.goals.push(goal);
+      this.goalMapByCard[goal.card.id] = goal;
     }
     this.setGoalMessage();
   }
 
   pickGoals(userInput: string): void {
-    const i = this.unassignedGoals.findIndex(goal => goal.card.id === userInput);
-    if (i >= 0) {
-      const goal = this.unassignedGoals.splice(i, 1)[0];
-      this.players[this.currentPlayerIdToPickGoals].goals.push(goal);
+    const goal = this.goals.find(goal => goal.card.id === userInput);
+    if (goal && !goal.assignedPlayer) {
+      const player = this.players[this.currentPlayerIdToPickGoals];
+      player.goals.push(goal);
+      goal.assignedPlayer = player;
 
-      if (this.unassignedGoals.length === 0) {
-        this.state = this.states.startNewTrick;
-        this.message = "Ready to start the game!"
-      } else {
+      if (this.goals.some(goal => !goal.assignedPlayer)) {
         this.currentPlayerIdToPickGoals < config.numberOfPlayers - 1 ?
           this.currentPlayerIdToPickGoals++ :
           this.currentPlayerIdToPickGoals = 0;
         this.setGoalMessage();
+      } else {
+        this.state = this.states.startNewTrick;
+        this.message = "Ready to start the game!"
       }
     } else {
       this.setGoalMessage();
@@ -173,14 +176,29 @@ export class Game {
 
   evaluateTrick(): void {
     const winner: Play = this.currentTrick.determineWinner();
-    this.trickResults.push({
+    const result: TrickResult = {
       winner: winner.player,
       cardPlayed: winner.card,
       cardsCaptured: [...this.currentTrick.plays.map(play => play.card)],
-    });
+    };
+    this.trickResults.push(result);
+    this.evaluateGoals(result);
     this.trickLead = winner.player;
     this.state = this.states.startNewTrick;
     this.setTrickWonMessage();
+  }
+
+  evaluateGoals(result: TrickResult): void {
+    result.cardsCaptured.forEach(card => {
+      const goal = this.goalMapByCard[card.id];
+      if (goal) {
+        if (goal.assignedPlayer === result.winner) {
+          goal.state = 'complete';
+        } else {
+          goal.state = 'failed';
+        }
+      }
+    });
   }
 
   setTrickWonMessage(): void {

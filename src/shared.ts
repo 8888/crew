@@ -12,7 +12,7 @@ export type Suit = {
 export type GameState = {
   players: Player[];
   currentTrick: Trick;
-  unassignedGoals: Goal[];
+  goals: Goal[];
   state: string;
   message: string;
   trickResults: TrickResult[];
@@ -55,5 +55,5 @@ export const suits: {[key: string]: Suit} = {
 }
 
 export const levels: Level[] = [
-  { name: '1', minValue: 7, maxValue: 9, maxTrumpValue: 0, cards: 1 },
+  { name: '1', minValue: 7, maxValue: 9, maxTrumpValue: 0, cards: 2 },
 ]

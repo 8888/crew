@@ -1,4 +1,5 @@
 import { Card } from './card.js';
+import { Player } from './player.js';
 
 export class Goal {
   states = {
@@ -10,6 +11,7 @@ export class Goal {
   state: typeof this.states[keyof typeof this.states];
 
   card: Card;
+  assignedPlayer: Player = null;
 
   constructor(card: Card) {
     this.card = card;

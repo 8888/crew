@@ -7,6 +7,7 @@ export class TerminalView {
     this.displayHands(state);
     this.displayUnassignedGoals(state);
     this.displayPlayerGoals(state);
+    this.displayCompletedGoals(state);
     this.displayLastTrickResult(state);
     this.displayCurrentTrick(state);
   }
@@ -40,27 +41,42 @@ export class TerminalView {
   }
 
   displayUnassignedGoals(state: GameState): void {
-    if (!state.unassignedGoals.length) return;
-    const goalsString = state.unassignedGoals.map(goal => `${goal.card.suit.id}${goal.card.value}`).join(', ');
-    console.log('*Available goals*');
-    console.log(goalsString);
+    const unassignedGoals = state.goals.filter(goal => !goal.assignedPlayer);
+    if (unassignedGoals.length) {
+      const goalsString = unassignedGoals.map(goal => `${goal.card.suit.id}${goal.card.value}`).join(', ');
+      console.log('*Available goals*');
+      console.log(goalsString);
+    }
   }
 
   displayPlayerGoals(state: GameState): void {
     let goalsString = '';
     state.players.forEach(player => {
-      if (player.goals.length) {
+      const aciveGoals = player.goals.filter(goal => goal.state === 'active');
+      if (aciveGoals.length) {
         goalsString += `P${player.id}: `;
-        player.goals.forEach(goal => {
+        aciveGoals.forEach(goal => {
           goalsString += `${goal.card.id} `
         });
-        goalsString += ' '.repeat(5);
+        goalsString += ' '.repeat(3);
       }
     });
-    if (goalsString) {
-      console.log('*Current goals*');
-      console.log(goalsString);
-    }
+    if (goalsString) console.log(`*Active goals*: ${goalsString}`);
+  }
+
+  displayCompletedGoals(state: GameState): void {
+    let goalsString = '';
+    state.players.forEach(player => {
+      const completedGoals = player.goals.filter(goal => goal.state === 'complete');
+      if (completedGoals.length) {
+        goalsString += `P${player.id}: `;
+        completedGoals.forEach(goal => {
+          goalsString += `${goal.card.id} `
+        });
+        goalsString += ' '.repeat(3);
+      }
+    });
+    if (goalsString) console.log(`*Completed goals*: ${goalsString}`);
   }
 
   displayLastTrickResult(state: GameState): void {
