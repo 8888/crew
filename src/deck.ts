@@ -2,7 +2,12 @@ import { Card } from './card.js'
 import { suits } from './shared.js';
 
 export class Deck {
-  constructor(minValue, maxValue, maxTrumpValue) {
+  minValue: number;
+  maxValue: number;
+  maxTrumpValue: number;
+  cards: Card[];
+
+  constructor(minValue: number, maxValue: number, maxTrumpValue: number) {
     this.minValue = minValue;
     this.maxValue = maxValue;
     this.maxTrumpValue = maxTrumpValue;
@@ -11,7 +16,7 @@ export class Deck {
     this.shuffle();
   }
 
-  build() {
+  build(): void {
     let deck = [];
     for (let i = this.minValue; i <= this.maxValue; i++) {
       for (let suit in suits) {
@@ -22,7 +27,7 @@ export class Deck {
     this.cards = deck;
   }
 
-  shuffle() {
+  shuffle(): void {
     for (let i = this.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]]

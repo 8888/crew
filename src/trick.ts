@@ -1,17 +1,25 @@
+import { Player } from './player.js';
+import { Card } from './card.js';
+import { Suit, Play } from './shared.js'
+
 export class Trick {
-  constructor(currentPlayer) {
+  leadSuit: Suit | null;
+  plays: {card: Card, player: Player}[];
+  currentPlayer: Player;
+
+  constructor(currentPlayer: Player) {
     this.leadSuit = null;
-    this.plays = []; // {card, player}
+    this.plays = [];
     this.currentPlayer = currentPlayer;
   }
 
-  playCard(card) {
+  playCard(card: Card): void {
     this.plays.push({player: this.currentPlayer, card});
     this.leadSuit = this.leadSuit || card.suit;
   }
 
-  determineWinner() {
-    let winner; // {card, player}
+  determineWinner(): Play {
+    let winner: Play;
     this.plays.forEach(play => {
       if (!winner) {
         winner = play;
