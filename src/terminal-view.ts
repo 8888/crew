@@ -3,7 +3,7 @@ import { Card } from './card.js';
 
 export class TerminalView {
   render(state: GameState) {
-    console.log('--------------------------------')
+    console.log(`----------------Level ${state.level+1}----------------`)
     this.displayHands(state);
     this.displayUnassignedGoals(state);
     this.displayPlayerGoals(state);

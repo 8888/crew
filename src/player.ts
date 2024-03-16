@@ -24,4 +24,10 @@ export class Player {
   hasSuit(suit: Suit): boolean {
     return !!this.hand.find(card => card.suit === suit);
   }
+
+  newHand(): void {
+    this.hand = [];
+    this.goals = [];
+    this.commander = false;
+  }
 }

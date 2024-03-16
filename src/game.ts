@@ -14,18 +14,18 @@ export class Game {
   } as const;
 
   // current trick
-  currentTrick: Trick = null;
-  trickLead: Player = null;
-  trickResults: TrickResult[] = [];
+  currentTrick: Trick;
+  trickLead: Player;
+  trickResults: TrickResult[];
   message: string;
 
   // current game
   players: Player[];
-  deck: Deck = null;
-  commander: Player = null;
+  deck: Deck;
+  commander: Player;
   currentPlayerIdToPickGoals: number;
-  goals: Goal[] = [];
-  goalMapByCard: {[key: string]: Goal} = {};
+  goals: Goal[];
+  goalMapByCard: {[key: string]: Goal};
   level = 0;
   state: typeof this.states[keyof typeof this.states];
 
@@ -50,6 +50,10 @@ export class Game {
   }
 
   startNewHand(): void {
+    this.players.forEach(player => player.newHand());
+    this.trickResults = [];
+    this.goals = [];
+    this.goalMapByCard = {};
     this.deck = this.buildDeck();
     this.buildDeck();
     this.deal();
@@ -91,6 +95,7 @@ export class Game {
       state: this.state,
       message: this.message,
       trickResults: this.trickResults,
+      level: this.level,
     };
   }
 
@@ -183,22 +188,31 @@ export class Game {
     };
     this.trickResults.push(result);
     this.evaluateGoals(result);
-    this.trickLead = winner.player;
-    this.state = this.states.startNewTrick;
-    this.setTrickWonMessage();
   }
 
-  evaluateGoals(result: TrickResult): void {
+  evaluateGoals(result: TrickResult): boolean {
     result.cardsCaptured.forEach(card => {
       const goal = this.goalMapByCard[card.id];
       if (goal) {
-        if (goal.assignedPlayer === result.winner) {
-          goal.state = 'complete';
-        } else {
-          goal.state = 'failed';
-        }
+        goal.state = goal.assignedPlayer === result.winner ? 'complete' : 'failed';
       }
     });
+
+    if (this.goals.some(goal => goal.state === 'failed')) {
+      this.state = this.states.deal;
+      this.message = `Goal failed! Restarting level ${this.level + 1}`;
+    } else if (this.goals.every(goal => goal.state === 'complete')) {
+      this.state = this.states.deal;
+      this.level++;
+      this.message = `Level completed! Advancing to level ${this.level + 1}`;
+    } else {
+      this.trickLead = result.winner;
+      this.state = this.states.startNewTrick;
+      this.setTrickWonMessage();
+    }
+
+    if (this.goals.some(goal => goal.state === 'failed')) return
+    return !this.goals.some(goal => goal.state === 'active');
   }
 
   setTrickWonMessage(): void {
