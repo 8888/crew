@@ -3,7 +3,7 @@ import { Card } from './card.js';
 
 export class TerminalView {
   render(state: GameState) {
-    console.log(`----------------Level ${state.level+1}----------------`)
+    console.log(`${'-'.repeat(16)}Level ${state.level+1}${'-'.repeat(64)}`)
     this.displayHands(state);
     this.displayUnassignedGoals(state);
     this.displayPlayerGoals(state);
@@ -43,7 +43,7 @@ export class TerminalView {
   displayUnassignedGoals(state: GameState): void {
     const unassignedGoals = state.goals.filter(goal => !goal.assignedPlayer);
     if (unassignedGoals.length) {
-      const goalsString = unassignedGoals.map(goal => `${goal.card.suit.id}${goal.card.value}`).join(', ');
+      const goalsString = unassignedGoals.map(goal => `${goal.card.suit.char}${goal.card.value}`).join(', ');
       console.log('*Available goals*');
       console.log(goalsString);
     }
@@ -84,10 +84,10 @@ export class TerminalView {
       const trick = state.trickResults[state.trickResults.length - 1];
       let cardsString = '';
       trick.cardsCaptured.forEach(card => {
-        cardsString += `${card.suit.id}${card.value} `
+        cardsString += `${card.suit.char}${card.value} `
       });
       console.log('*Results of the last trick*');
-      console.log(`P${trick.winner.id} played ${trick.cardPlayed.suit.id}${trick.cardPlayed.value} to capture ${cardsString}`);
+      console.log(`P${trick.winner.id} played ${trick.cardPlayed.suit.char}${trick.cardPlayed.value} to capture ${cardsString}`);
     }
   }
 
@@ -96,7 +96,7 @@ export class TerminalView {
     const lead = state.currentTrick.leadSuit ? state.currentTrick.leadSuit.name : 'none';
     let cardsString = '';
     state.currentTrick?.plays.forEach(card => {
-      cardsString += `(P${card.player.id}: ${card.card.suit.id}${card.card.value}), `
+      cardsString += `(P${card.player.id}: ${card.card.suit.char}${card.card.value}), `
     })
     console.log(`*Current trick*`);
     console.log(`Lead suit: ${lead}`);

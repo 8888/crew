@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+    "build": "tsc"
+  },
   "type": "module",
   "devDependencies": {
     "@types/node": "^20.11.5",

@@ -5,7 +5,7 @@ import { Goal } from './goal.js';
 
 export type Suit = {
   name: string;
-  id: string;
+  char: string;
   trump: boolean;
 }
 
@@ -48,11 +48,11 @@ export const config = {
 }
 
 export const suits: {[key: string]: Suit} = {
-  black: {name: 'black', id: 'k', trump: true},
-  blue: {name: 'blue', id: 'b', trump: false},
-  red: {name: 'red', id: 'r', trump: false},
-  green: {name: 'green', id: 'g', trump: false},
-  yellow: {name: 'yellow', id: 'y', trump: false},
+  black: {name: 'black', char: 'k', trump: true},
+  blue: {name: 'blue', char: 'b', trump: false},
+  red: {name: 'red', char: 'r', trump: false},
+  green: {name: 'green', char: 'g', trump: false},
+  yellow: {name: 'yellow', char: 'y', trump: false},
 }
 
 export const levels: Level[] = [

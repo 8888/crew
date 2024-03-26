@@ -8,6 +8,6 @@ export class Card {
   constructor(value: number, suit: Suit) {
     this.value = value;
     this.suit = suit;
-    this.id = `${suit.id}${value}`;
+    this.id = `${suit.char}${value}`;
   }
 }
